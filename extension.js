@@ -43,6 +43,8 @@ function activate(context) {
 		vscode.window.showInformationMessage('Hello World from zRainbow!');
 		// const PalavrasChave = DefinirKeywords();
 		const programa = new Programa(vscode.window.activeTextEditor.document.getText());
+
+		DarCorIfs(programa.ProcedureDivision.Objects.IfElseEndIfs, 0);
 		console.log(programa);
 	});
 
@@ -57,317 +59,43 @@ module.exports = {
 	deactivate
 }
 
-// function DefinirKeywords() {
 
-// 	const texto = vscode.window.activeTextEditor.document.getText();
-// 	const ListaPalavras = new Palavras(texto);
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+function DarCorIfs(Elementos, indice) {
 
-// 	// for (let i = 0; i < ListaPalavras.ListaPalavras.length; i++) {
-// 	// 	const element = ListaPalavras.ListaPalavras[i].palavra;
-// 	// 	console.log(`palavra ${element}`);
+	const Cores = ["green", "red", "blue", "orange", "yellow"];
+	let decoração1 = [];
 
-// 	// }
+	if (indice>=Cores.length) {
+		indice=0;
+	}
 
-// }
+	for (let i = 0; i < Elementos.length; i++) {
+		const element = Elementos[i];
+		if (element.IfElseEndIf.If.range) {
+			decoração1.push(element.IfElseEndIf.If.range);
+			if (element.IfElseEndIf.If.Filhos.length>0){
+				DarCorIfs(element.IfElseEndIf.If.Filhos, indice +1);
+			}
 
-// class Palavras {
-// 	constructor(Texto = new String) {
+		}
+		if (element.IfElseEndIf.Else.range) {
+			decoração1.push(element.IfElseEndIf.Else.range);
+		} 
+		if (element.IfElseEndIf.EndIf.range) {
+			decoração1.push(element.IfElseEndIf.EndIf.range);
+		}
+	}
 
-// 		const PalavrasChave = { "PalavraInicial": 'if', "PalavraFinal": "end-if", "PalavraNoMeio": "else" };
-// 		// const texto = removeSeqnumAste(Texto);
-
-// 		const palavras = ObtemPosições(Texto, PalavrasChave, 0);
-
-// 		this.Palavras = palavras;
-
-// 		if (palavras) {
-// 			this.háPalavras = true;
-// 		} else {
-// 			this.háPalavras = false;
-// 		}
-
-// 		function ObtemPosições(texto = new String, palavrasChave, inicio = 0) {
-
-
-// 			const PosiçãoPalavraInicial = texto.indexOf(palavrasChave[0].PalavraInicial, inicio);
-
-// 			const PosiçãoPalavraNoMeio = texto.indexOf(PalavrasChave[0].PalavraNoMeio, inicio);
-// 			const PosiçãoPalavraFinal = texto.indexOf(PalavrasChave[0].PalavraFinal, inicio);
-// 			const proximaPalavraInicial = texto.indexOf(PalavrasChave[0].PalavraInicial, PosiçãoPalavraInicial + 1);
-
-// 			if (PosiçãoPalavraInicial < 0) {
-
-// 				console.log('não tem ifs');
-// 				return undefined;
-// 			} else {
-
-// 				if (proximaPalavraInicial < 0) {
-
-// 					console.log('não tem mais ifs');
-
-// 					if (PosiçãoPalavraFinal < 0) {
-// 						console.log('não tem end-if');
-
-// 						if (PosiçãoPalavraNoMeio < 0) {
-// 							console.log('não tem nenhum else')
-// 							console.log('------------Apenas o if fica com cor------------')
-
-// 							return RetornaApenasIf();
-
-// 						} else {
-// 							console.log('tem else e não tem end')
-// 							console.log('---------------o if fica com cor----------------')
-// 							console.log('--------------o else fica com cor---------------')
-// 							return RetornaIfElse();
-
-// 						}
-// 					} else {
-// 						console.log('tem end-if')
-// 						if (PosiçãoPalavraNoMeio < 0) {
-// 							console.log('não tem nenhum else')
-// 							console.log('---------------o if fica com cor----------------')
-// 							console.log('-------------o end-if fica com cor--------------')
-// 							return RetornaIfEndif();
-
-// 						} else {
-// 							console.log('tem else e end-if')
-// 							console.log('---------------o if fica com cor----------------')
-// 							console.log('--------------o else fica com cor---------------')
-// 							console.log('-------------o end-if fica com cor--------------')
-// 							return RetornaIfElseEndif();
-
-// 						}
-
-// 					}
-// 				} else {
-
-// 					console.log('tem mais ifs');
-
-// 					if (PosiçãoPalavraFinal < 0) {
-// 						console.log('não tem end if');
-
-// 						if (PosiçãoPalavraNoMeio < 0) {
-// 							console.log('não tem nenhum else nem end-if')
-// 							console.log('o if e tratado como filho do if')
-// 							console.log('---------------o if fica com cor----------------')
-// 							console.log('----invoca o paragrafo para o segundo if--------')
-// 							return RetornaApenasIf();
-
-// 						} else {
-// 							console.log('tem else sme end if')
-
-// 							if (PosiçãoPalavraNoMeio < proximaPalavraInicial) {
-// 								console.log('tem else antes do proximo if nao tem end if')
-// 								console.log('if tratado com filho do else')
-// 								console.log('---------------o if fica com cor----------------')
-// 								console.log('--------------o else fica com cor---------------')
-// 								console.log('----invoca o paragrafo para o segundo if--------')
-// 								return RetornaIfElse();
-
-// 							} else {
-// 								console.log('tem else depois do proximo if nao tem end if')
-// 								console.log('if tratado com filho do if else agrupa com segundo if')
-// 								console.log('---------------o if fica com cor----------------')
-// 								console.log('----invoca o paragrafo para o segundo if--------')
-// 								return RetornaIfEndif();
-
-// 							}
-
-// 						}
-
-// 					} else {
-// 						console.log('tem end-if')
-
-// 						if (PosiçãoPalavraNoMeio < 0) {
-// 							console.log('não tem else')
+		const decoration1 = vscode.window.createTextEditorDecorationType({
+			isWholeLine: false,
+			color: Cores[indice]
+		});
+	vscode.window.activeTextEditor.setDecorations(decoration1,decoração1);
+}
 
 
-// 							if (proximaPalavraInicial < PosiçãoPalavraFinal) {
-// 								console.log('tem if antes do end if');
-
-// 								console.log('não tem nenhum else o if é filho do if')
-// 								console.log('---------------o if fica com cor----------------')
-// 								console.log('-------------o end-if fica com cor--------------')
-// 								console.log('----invoca o paragrafo para o segundo if--------')
-// 								return RetornaIfEndif();
-
-// 							} else {
-// 								console.log('tem if depois do end if e não é filho');
-// 								console.log('---------------o if fica com cor----------------')
-// 								console.log('-------------o end-if fica com cor--------------')
-// 								return RetornaIfEndif();
-
-// 							}
-// 						} else {
-// 							console.log('tem else e end if')
-
-// 							if (proximaPalavraInicial < PosiçãoPalavraNoMeio) {
-// 								console.log('tem else e end if e o if é filho do if')
-// 								console.log('---------------o if fica com cor----------------')
-// 								console.log('--------------o else fica com cor---------------')
-// 								console.log('-------------o end-if fica com cor--------------')
-// 								console.log('----invoca o paragrafo para o segundo if--------')
-// 								return RetornaIfElseEndif();
-// 								console.log('validar um terceiro if que seja ainterior ao ')
-// 							} else {
-
-// 								if (proximaPalavraInicial < PosiçãoPalavraFinal) {
-// 									console.log('tem if entre o else e o end if');
-// 									console.log('if filho do else');
-// 									console.log('---------------o if fica com cor----------------')
-// 									console.log('--------------o else fica com cor---------------')
-// 									console.log('-------------o end-if fica com cor--------------')
-// 									console.log('----invoca o paragrafo para o segundo if--------')
-// 									return RetornaIfElseEndif();
-
-// 								} else {
-// 									console.log('tem if depois do end if e não é filho');
-// 									console.log('---------------o if fica com cor----------------')
-// 									console.log('--------------o else fica com cor---------------')
-// 									console.log('-------------o end-if fica com cor--------------')
-// 									return RetornaIfElseEndif();
-
-// 								}
-// 							}
-// 						}
-
-// 					}
-
-// 				}
-// 			}
-
-// 			function RetornaIfElseEndif() {
-// 				return `{
-// 						"Tipo":"IfThenElse,
-// 						"Palafras":
-// 						[
-// 							{
-// 								"If":{
-// 									"inicio":"${PosiçãoPalavraInicial}",
-// 									"fim":"${PosiçãoPalavraInicial + 2}",
-// 									"filhos":"undefined"
-// 								}
-// 							},
-// 							{
-// 								"Else":"{
-// 									"inicio":"${PosiçãoPalavraNoMeio}",
-// 									"fim":"${PosiçãoPalavraNoMeio + 4}",
-// 									"filhos":"undefined"
-// 								}
-// 							},
-// 							{
-// 								"End-if":{
-// 									"inicio":"${PosiçãoPalavraFinal}",
-// 									"fim":"${PosiçãoPalavraFinal + 6}",
-// 									"filhos":"undefined"
-// 								}
-// 							}
-// 						]
-// 					}`;
-// 			}
-
-// 			function RetornaIfEndif() {
-// 				return `{
-// 						"Tipo":"IfThenElse,
-// 						"Palafras":
-// 						[
-// 							{
-// 								"If":{
-// 									"inicio":"${PosiçãoPalavraInicial}",
-// 									"fim":"${PosiçãoPalavraInicial + 2}",
-// 									"filhos":"undefined"
-// 								}
-// 							},
-// 							{
-// 								"Else":"undefined"
-// 							},
-// 							{
-// 								"End-if":{
-// 									"inicio":"${PosiçãoPalavraFinal}",
-// 									"fim":"${PosiçãoPalavraFinal + 6}",
-// 									"filhos":"undefined"
-// 								}
-// 							}
-// 						]
-// 					}`;
-// 			}
-
-// 			function RetornaIfElse() {
-// 				return `{
-// 						"Tipo":"IfThenElse,
-// 						"Palafras":
-// 						[
-// 							{
-// 								"If":{
-// 									"inicio":"${PosiçãoPalavraInicial}",
-// 									"fim":"${PosiçãoPalavraInicial + 2}",
-// 									"filhos":"undefined"
-// 								}
-// 							},
-// 							{
-// 								"Else":"{
-// 									"inicio":"${PosiçãoPalavraNoMeio}",
-// 									"fim":"${PosiçãoPalavraNoMeio + 4}",
-// 									"filhos":"undefined"
-// 								}
-// 							},
-// 							{
-// 								"End-if":"undefined"
-// 							}
-// 						]
-// 					}`;
-// 			}
-
-// 			function RetornaApenasIf() {
-
-// 				return `{
-// 					"Tipo":"IfThenElse,
-// 					"Palafras":
-// 					[
-// 						{
-// 							"If":{
-// 								"inicio":"${PosiçãoPalavraInicial}",
-// 								"fim":"${PosiçãoPalavraInicial + 2}",
-// 								"filhos":"undefined"
-// 							}
-// 						},
-// 						{
-// 							"Else":"undefined"
-// 						},
-// 						{
-// 							"End-if":"undefined"
-// 						}
-// 					]
-// 				}`;
-// 			}
-
-
-// 		}
-
-
-// 		function removeSeqnumAste(fullText) {
-
-// 			let fullTextArray = fullText.split(/\r?\n|\r|\n/g);
-
-// 			let resultado = '';
-
-// 			for (let i = 0; i < fullTextArray.length; ++i) {
-
-
-// 				if (fullTextArray[i].trim().length > 6) {
-
-// 					if (fullTextArray[i].substring(6, 7) == '*' && fullTextArray[i].substring(7, 72).trim().length > 0) {
-// 						resultado += Array(fullTextArray).join(' ');
-// 					} else {
-// 						resultado += fullTextArray[i];
-// 					}
-// 				}
-// 			}
-// 			return resultado;
-// 		}
-// 	}
-
-// }
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 class Programa {
 	constructor(programa) {
@@ -392,7 +120,10 @@ class Programa {
 			EndIf: "END-IF",
 			PontoFinal: ".",
 			Evaluate: "EVALUATE",
-			EndEvaluate: "END-EVALUATE"
+			EndEvaluate: "END-EVALUATE",
+			Perform: "PERFORM",
+			EndPerform: "END-PERFORM",
+			Ponto: "."
 		}
 		const Division = {
 			Identification: "IDENTIFICATION",
@@ -400,29 +131,22 @@ class Programa {
 			Data: "DATA",
 			Procedure: "PROCEDURE"
 		}
-		const ListaPalavras = ["IF", "ELSE", "END-IF", "EVALUATE", "END-EVALUATE", "."];
+		const ListaPalavras = ["IF", "ELSE", "END-IF", "EVALUATE", "END-EVALUATE", "PERFORM", "END-PERFORM", "."];
 
 		this.Code = programa;
 		const programaLimpo = programa.split('\r\n');
 
-		// this.IdentificationDivision = programaLimpo.
-
-		// for (let i = 0; i < programaLimpo.length; i++) {
-		// 	const linha = programaLimpo[i];
 
 		ValidaDivision(programaLimpo);
-		// 	ValidaDivision(linha, i);
-		// 				ProcedureDivisionRange = new vscode.Range(Inicio, Fim);
-
-		// }
 
 		this.DataDivision = { Range: DataDivisionRange, Code: DataDivisionCode };
 		this.EnviromentDivision = { Range: EnviromentDivisionRange, Code: EnviromentDivisionCode };
 		this.IdentificationDivision = { Range: IdentificationDivisionRange, Code: IdentificationDivisionCode };
 		this.ProcedureDivision = { Range: ProcedureDivisionRange, Code: ProcedureDivisionCode };
 
-		trataProcedureDivision(this);
+		const procedure = trataProcedureDivision(this);
 
+		this.ProcedureDivision = { Range: ProcedureDivisionRange, Code: ProcedureDivisionCode, Objects: procedure };
 
 
 
@@ -431,15 +155,19 @@ class Programa {
 
 			const Linhas = isto.ProcedureDivision.Code.split(separador);
 			let ArrayPalavras = [];
+			let codigo = true;
 
 			for (let i = 0; i < Linhas.length; i++) {
 				const linha = Linhas[i];
 				// Separa a linha por espaços para validar que não é parte de outra palavra
-				const linhaSeparada = linha.split(' ');
+				const linhaSeparada = linha.split(/(?=[. ])|(?<=[. ])/g);
 
 				for (let j = 0; j < ListaPalavras.length; j++) {
 					const palavra = ListaPalavras[j];
-					if (linhaSeparada.includes(palavra)) {
+					if (palavra == "'" || palavra == '"') {
+						codigo = !codigo;
+					}
+					if (linhaSeparada.includes(palavra) && codigo) {
 						ArrayPalavras.push(ValidaPalavra(palavra, linha, i, isto));
 					}
 				}
@@ -447,21 +175,27 @@ class Programa {
 
 			}
 
-			console.log(ArrayPalavras);
+			const IfElseEndIfs = validaIfElseEndIf(ArrayPalavras);
+
+			const retorno = { IfElseEndIfs: IfElseEndIfs }
+			console.log(IfElseEndIfs[0].Code);
+
+			return retorno;
 
 
 
 			/////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-			function ValidaPalavra(Palavra = '', linha, Linha, isto) {
+			function ValidaPalavra(Palavra = '', linha, i, isto) {
 
 				const posição = linha.indexOf(Palavra);
 
+
 				if (posição >= 0) {
-					const linha = isto.ProcedureDivision.Range.start.line + Linha;
+					const linha = isto.ProcedureDivision.Range.start.line + i + 1;
 					const caracter = posição;
 					const inicio = new vscode.Position(linha, caracter);
-					const Fim = new vscode.Position(linha, caracter+Palavra.length);
-					return { oalavra: Palavra, range: new vscode.Range(inicio, Fim) };
+					const Fim = new vscode.Position(linha, caracter + Palavra.length);
+					return { palavra: Palavra, range: new vscode.Range(inicio, Fim) };
 				}
 			}
 
@@ -548,3 +282,71 @@ class Programa {
 
 	}
 }
+function validaIfElseEndIf(ArrayPalavras) {
+
+	let IfElseEndIf = [];
+
+	for (let i = 0; i < ArrayPalavras.length; i++) {
+		const palavra = ArrayPalavras[i];
+
+		// encontrou o primeiro if
+		if (palavra.palavra == 'IF') {
+			const condição = validaSaida(ArrayPalavras, i);
+			const range = new vscode.Range(palavra.range.start, condição.retorno.Fim.end);
+			const code = vscode.window.activeTextEditor.document.getText(range);
+			IfElseEndIf.push({ IfElseEndIf: condição.retorno, Range: range, Code: code });
+			i = condição.Posição;
+		}
+
+	}
+
+	return IfElseEndIf;
+
+	function validaSaida(array = [], posiçãoInicial) {
+
+		let If = array[posiçãoInicial];
+		let Else = { range: undefined };
+		let EndIf = { range: undefined };
+		let Filhos = [];
+		let FilhosIf = [];
+		let FilhosElse = [];
+		let Fim = vscode.Range;
+
+		for (let i = posiçãoInicial + 1; i < array.length; i++) {
+			const element = array[i];
+			switch (element.palavra) {
+				case "ELSE":
+					FilhosIf = Filhos;
+					Else = array[i];
+					Filhos = [];
+					break;
+				case "END-IF":
+					if (Else.range) {
+						FilhosElse = Filhos;
+					} else {
+						FilhosIf = Filhos;
+					}
+					EndIf = array[i];
+					Fim = EndIf.range;
+					return { retorno: { If: { range: If.range, Filhos: FilhosIf }, Else: { range: Else.range, Filhos: FilhosElse }, EndIf: { range: EndIf.range }, Fim: Fim }, Posição: i }
+				case ".":
+					if (EndIf.range) {
+						Fim = EndIf.range;
+					} else {
+						Fim = element.range;
+					}
+
+					return { retorno: { If: { range: If.range, Filhos: FilhosIf }, Else: { range: Else.range, Filhos: FilhosElse }, EndIf: { range: EndIf.range }, Fim: Fim }, Posição: i }
+				// break;
+				case "IF":
+					const retorno = validaSaida(ArrayPalavras, i);
+					Filhos.push({IfElseEndIf: retorno.retorno});
+					i = retorno.Posição;
+					break;
+			}
+
+		}
+
+	}
+}
+
