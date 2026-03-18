@@ -1,53 +1,88 @@
-# zrainbow README
+# zRainbow - COBOL Rainbow Brackets
 
-This is the README for your extension "zrainbow". After writing up a brief description, we recommend including the following sections.
+A VS Code extension that colorizes COBOL conditional structures to improve code readability, especially when dealing with nested conditions.
 
 ## Features
 
-Describe specific features of your extension including screenshots of your extension in action. Image paths are relative to this README file.
+zRainbow automatically colorizes matching pairs of COBOL conditional structures with rainbow colors:
 
-For example if there is an image subfolder under your extension project workspace:
+- **IF...ELSE...END-IF** structures
+- **PERFORM...END-PERFORM** structures (inline performs with UNTIL/VARYING/TIMES)
+- **EVALUATE...WHEN...END-EVALUATE** structures
 
-\!\[feature X\]\(images/feature-x.png\)
+Each nesting level gets a different color, making it easy to identify:
+- The **opening** keyword (IF, PERFORM, EVALUATE) - bold colored
+- The **middle** keywords (ELSE, WHEN) - bold colored with accent
+- The **closing** keyword (END-IF, END-PERFORM, END-EVALUATE) - bold colored
 
-> Tip: Many popular extensions utilize animations. This is an excellent way to show off your extension! We recommend short, focused animations that are easy to follow.
+### Example
+
+```cobol
+       IF WS-CONDITION-A = 'Y'              <- Level 1 (Gold)
+           IF WS-CONDITION-B = 'Y'          <- Level 2 (Cyan)
+               PERFORM PROCESS-DATA
+           ELSE                             <- Level 2 (Cyan)
+               PERFORM ERROR-ROUTINE
+           END-IF                           <- Level 2 (Cyan)
+       ELSE                                 <- Level 1 (Gold)
+           PERFORM SKIP-ROUTINE
+       END-IF                               <- Level 1 (Gold)
+```
 
 ## Requirements
 
-If you have any requirements or dependencies, add a section describing those and how to install and configure them.
+- VS Code version 1.112.0 or higher
+- COBOL language support (any COBOL extension that sets the language ID to "cobol" or "COBOL")
 
 ## Extension Settings
 
-Include if your extension adds any VS Code settings through the `contributes.configuration` extension point.
-
-For example:
-
 This extension contributes the following settings:
 
-* `myExtension.enable`: Enable/disable this extension.
-* `myExtension.thing`: Set to `blah` to do something.
+* `zrainbow.enabled`: Enable/disable rainbow coloring for COBOL conditional structures (default: `true`)
+
+## Commands
+
+* `zRainbow: Toggle COBOL Rainbow Brackets` - Quickly enable/disable the rainbow coloring
+
+## How It Works
+
+The extension:
+1. Activates automatically when you open a COBOL file (.cbl, .cob, .cobol)
+2. Parses the code to identify conditional structures
+3. Matches opening and closing keywords, tracking nesting levels
+4. Applies rainbow colors based on nesting depth
+5. Updates colors in real-time as you type
+
+## Color Scheme
+
+The extension uses 6 rainbow colors that cycle through nesting levels:
+1. Gold/Orange
+2. Cyan/Blue
+3. Pink/Deep Pink
+4. Lime/Green
+5. Purple/Dark Magenta
+6. Tomato/Crimson
 
 ## Known Issues
 
-Calling out known issues can help limit users opening duplicate issues against your extension.
+- Only detects inline PERFORM statements (those with UNTIL, VARYING, or TIMES)
+- Comment detection assumes standard COBOL format (asterisk in column 7)
+- Requires proper COBOL syntax (matching END-IF, END-PERFORM, END-EVALUATE)
 
 ## Release Notes
 
-Users appreciate release notes as you update your extension.
+### 0.0.1
 
-### 1.0.0
-
-Initial release of ...
-
-### 1.0.1
-
-Fixed issue #.
-
-### 1.1.0
-
-Added features X, Y, and Z.
+Initial release of zRainbow:
+- Support for IF...ELSE...END-IF structures
+- Support for PERFORM...END-PERFORM structures
+- Support for EVALUATE...WHEN...END-EVALUATE structures
+- Rainbow coloring for up to 6 nesting levels
+- Toggle command to enable/disable coloring
 
 ---
+
+**Enjoy coding COBOL with better visibility!**
 
 ## Working with Markdown
 

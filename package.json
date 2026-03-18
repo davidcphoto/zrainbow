@@ -1,21 +1,36 @@
 {
   "name": "zrainbow",
   "displayName": "zRainbow",
-  "description": "Color indentification of pairs of keywords",
+  "description": "Color pairing of if, perform, evaluate conditions for COBOL programs",
   "version": "0.0.1",
   "engines": {
-    "vscode": "^1.100.0"
+    "vscode": "^1.60.0"
   },
   "categories": [
     "Other"
   ],
-  "activationEvents": [],
+  "activationEvents": [
+    "onLanguage:cobol",
+    "onLanguage:COBOL"
+  ],
   "main": "./extension.js",
   "contributes": {
-    "commands": [{
-      "command": "zrainbow.helloWorld",
-      "title": "Hello World"
-    }]
+    "commands": [
+      {
+        "command": "zrainbow.toggle",
+        "title": "zRainbow: Toggle COBOL Rainbow Brackets"
+      }
+    ],
+    "configuration": {
+      "title": "zRainbow",
+      "properties": {
+        "zrainbow.enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable/disable rainbow coloring for COBOL conditional structures"
+        }
+      }
+    }
   },
   "scripts": {
     "lint": "eslint .",
@@ -23,7 +38,7 @@
     "test": "node ./test/runTest.js"
   },
   "devDependencies": {
-    "@types/vscode": "^1.100.0",
+    "@types/vscode": "^1.60.0",
     "@types/mocha": "^10.0.2",
     "@types/node": "18.x",
     "eslint": "^8.50.0",
