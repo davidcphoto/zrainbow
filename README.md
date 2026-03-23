@@ -17,20 +17,6 @@ Each nesting level gets a different color, making it easy to identify:
 
 ### Example
 
-```cobol
-       IF WS-CONDITION-A = 'Y'              <- Level 1 (Gold)
-           IF WS-CONDITION-B = 'Y'          <- Level 2 (Cyan)
-               PERFORM PROCESS-DATA
-           ELSE                             <- Level 2 (Cyan)
-               PERFORM ERROR-ROUTINE
-           END-IF                           <- Level 2 (Cyan)
-       ELSE                                 <- Level 1 (Gold)
-           PERFORM SKIP-ROUTINE
-       END-IF                               <- Level 1 (Gold)
-```
-
-## Visual Example
-
 Below is a screenshot of zRainbow highlighting nested COBOL structures:
 
 ![zRainbow Example](Exemplo.png)
