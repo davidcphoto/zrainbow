@@ -6,6 +6,7 @@
   "engines": {
     "vscode": "^1.60.0"
   },
+  "icon": "zRainbow.png",
   "categories": [
     "Other"
   ],
@@ -25,7 +26,14 @@
     "color",
     "nesting",
     "visual studio code",
-    "extension"
+    "extension",
+    "zowe",
+    "zos",
+    "z/os",
+    "mainframe",
+    "IBM",
+    "AS400",
+    "IBM i"
   ],
   "activationEvents": [
     "onLanguage:cobol",

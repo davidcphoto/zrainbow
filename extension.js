@@ -4,6 +4,7 @@ const vscode = require('vscode');
 
 // Decoration types for different nesting levels
 let decorationTypes = [];
+let connectorTypes = [];
 
 // Default colors for different nesting levels (rainbow effect)
 const defaultColors = [
@@ -109,27 +110,47 @@ function activate(context) {
 	if (vscode.window.activeTextEditor && isCobolFile(vscode.window.activeTextEditor.document)) {
 		updateDecorations(vscode.window.activeTextEditor);
 	}
+
+	// Atualiza a linha vertical apenas quando o cursor está sobre um elemento relevante
+	context.subscriptions.push(
+		vscode.window.onDidChangeTextEditorSelection(event => {
+			const editor = event.textEditor;
+			if (editor && isCobolFile(editor.document)) {
+				updateDecorations(editor);
+			}
+		})
+	);
 }
 
 /**
  * Initialize decoration types for each nesting level
  */
 function initializeDecorationTypes() {
-	const colors = getColors();
-	decorationTypes = colors.map(color => ({
-		opening: vscode.window.createTextEditorDecorationType({
-			color: color.opening,
-			fontWeight: 'bold'
-		}),
-		middle: vscode.window.createTextEditorDecorationType({
-			color: color.middle,
-			fontWeight: 'bold'
-		}),
-		closing: vscode.window.createTextEditorDecorationType({
-			color: color.closing,
-			fontWeight: 'bold'
-		})
-	}));
+       const colors = getColors();
+       decorationTypes = colors.map(color => ({
+	       opening: vscode.window.createTextEditorDecorationType({
+		       color: color.opening,
+		       fontWeight: 'bold'
+	       }),
+	       middle: vscode.window.createTextEditorDecorationType({
+		       color: color.middle,
+		       fontWeight: 'bold'
+	       }),
+	       closing: vscode.window.createTextEditorDecorationType({
+		       color: color.closing,
+		       fontWeight: 'bold'
+	       })
+       }));
+       connectorTypes = colors.map(color =>
+	       vscode.window.createTextEditorDecorationType({
+		       isWholeLine: true,
+		       borderColor: color.opening,
+		       borderStyle: 'solid',
+		       borderWidth: '0 0 0 3px',
+		       borderRadius: '2px',
+		       margin: '0 0 0 2px',
+	       })
+       );
 }
 
 /**
@@ -370,82 +391,135 @@ function updateDecorations(editor) {
 		editor.setDecorations(dt.closing, []);
 	});
 
-	// Group decorations by level and type
-	const decorationsByLevel = {};
+		// Group decorations by level and type
+		const decorationsByLevel = {};
+		// Para a linha vertical, só mostrar para o bloco ativo
+		const selections = editor.selections;
+		let activeStructure = null;
 
-	structures.forEach(structure => {
-		const level = structure.level % decorationTypes.length;
-
-		if (!decorationsByLevel[level]) {
-			decorationsByLevel[level] = {
-				opening: [],
-				middle: [],
-				closing: []
-			};
+		// Descobre se o cursor está sobre algum elemento de bloco
+		for (const sel of selections) {
+			const pos = sel.active;
+			for (const structure of structures) {
+				const level = structure.level % decorationTypes.length;
+				// Opening
+				if (pos.line === structure.startLine && pos.character >= structure.startChar && pos.character <= structure.endChar) {
+					activeStructure = { structure, level };
+					break;
+				}
+				// Closing
+				if (structure.endLine !== undefined && pos.line === structure.endLine && pos.character >= structure.endStartChar && pos.character <= structure.endEndChar) {
+					activeStructure = { structure, level };
+					break;
+				}
+				// ELSE
+				if (structure.elseLine !== undefined && pos.line === structure.elseLine && pos.character >= structure.elseStartChar && pos.character <= structure.elseEndChar) {
+					activeStructure = { structure, level };
+					break;
+				}
+				// WHENs
+				if (structure.whens && structure.whens.length > 0) {
+					for (const when of structure.whens) {
+						if (pos.line === when.line && pos.character >= when.startChar && pos.character <= when.endChar) {
+							activeStructure = { structure, level };
+							break;
+						}
+					}
+				}
+				if (activeStructure) break;
+			}
+			if (activeStructure) break;
 		}
 
-		// Opening keyword decoration
-		const openingRange = new vscode.Range(
-			structure.startLine,
-			structure.startChar,
-			structure.startLine,
-			structure.endChar
-		);
-		decorationsByLevel[level].opening.push({ range: openingRange });
+		structures.forEach(structure => {
+			const level = structure.level % decorationTypes.length;
 
-		// Middle keyword decoration (ELSE or WHEN)
-		if (structure.elseLine !== undefined) {
-			const elseRange = new vscode.Range(
-				structure.elseLine,
-				structure.elseStartChar,
-				structure.elseLine,
-				structure.elseEndChar
+			if (!decorationsByLevel[level]) {
+				decorationsByLevel[level] = {
+					opening: [],
+					middle: [],
+					closing: []
+				};
+			}
+
+			// Opening keyword decoration
+			const openingRange = new vscode.Range(
+				structure.startLine,
+				structure.startChar,
+				structure.startLine,
+				structure.endChar
 			);
-			decorationsByLevel[level].middle.push({ range: elseRange });
-		}
+			decorationsByLevel[level].opening.push({ range: openingRange });
 
-		if (structure.whens && structure.whens.length > 0) {
-			structure.whens.forEach(when => {
-				const whenRange = new vscode.Range(
-					when.line,
-					when.startChar,
-					when.line,
-					when.endChar
+			// Middle keyword decoration (ELSE ou WHEN)
+			if (structure.elseLine !== undefined) {
+				const elseRange = new vscode.Range(
+					structure.elseLine,
+					structure.elseStartChar,
+					structure.elseLine,
+					structure.elseEndChar
 				);
-				decorationsByLevel[level].middle.push({ range: whenRange });
-			});
-		}
+				decorationsByLevel[level].middle.push({ range: elseRange });
+			}
 
-		// Closing keyword decoration
-		if (structure.endLine !== undefined) {
-			const closingRange = new vscode.Range(
-				structure.endLine,
-				structure.endStartChar,
-				structure.endLine,
-				structure.endEndChar
-			);
-			decorationsByLevel[level].closing.push({ range: closingRange });
-		}
-	});
+			if (structure.whens && structure.whens.length > 0) {
+				structure.whens.forEach(when => {
+					const whenRange = new vscode.Range(
+						when.line,
+						when.startChar,
+						when.line,
+						when.endChar
+					);
+					decorationsByLevel[level].middle.push({ range: whenRange });
+				});
+			}
 
-	// Apply decorations
-	Object.keys(decorationsByLevel).forEach(level => {
-		const levelNum = parseInt(level);
-		const decorations = decorationsByLevel[level];
+			// Closing keyword decoration
+			if (structure.endLine !== undefined) {
+				const closingRange = new vscode.Range(
+					structure.endLine,
+					structure.endStartChar,
+					structure.endLine,
+					structure.endEndChar
+				);
+				decorationsByLevel[level].closing.push({ range: closingRange });
+			}
+		});
 
-		editor.setDecorations(decorationTypes[levelNum].opening, decorations.opening);
-		editor.setDecorations(decorationTypes[levelNum].middle, decorations.middle);
-		editor.setDecorations(decorationTypes[levelNum].closing, decorations.closing);
-	});
+		// Aplica decorações
+		Object.keys(decorationsByLevel).forEach(level => {
+			const levelNum = parseInt(level);
+			const decorations = decorationsByLevel[level];
+
+			editor.setDecorations(decorationTypes[levelNum].opening, decorations.opening);
+			editor.setDecorations(decorationTypes[levelNum].middle, decorations.middle);
+			editor.setDecorations(decorationTypes[levelNum].closing, decorations.closing);
+
+			// Só mostra a linha vertical se o cursor estiver sobre o bloco
+			if (activeStructure && activeStructure.level === levelNum) {
+				const s = activeStructure.structure;
+				const lines = [];
+				lines.push({ range: new vscode.Range(s.startLine, 0, s.startLine, 0) });
+				if (s.elseLine !== undefined) lines.push({ range: new vscode.Range(s.elseLine, 0, s.elseLine, 0) });
+				if (s.whens && s.whens.length > 0) {
+					s.whens.forEach(when => lines.push({ range: new vscode.Range(when.line, 0, when.line, 0) }));
+				}
+				if (s.endLine !== undefined) lines.push({ range: new vscode.Range(s.endLine, 0, s.endLine, 0) });
+				editor.setDecorations(connectorTypes[levelNum], lines);
+			} else {
+				editor.setDecorations(connectorTypes[levelNum], []);
+			}
+		});
 }
 
 // This method is called when your extension is deactivated
 function deactivate() {
-	decorationTypes.forEach(dt => {
-		dt.opening.dispose();
-		dt.middle.dispose();
-		dt.closing.dispose();
-	});
+       decorationTypes.forEach(dt => {
+	       dt.opening.dispose();
+	       dt.middle.dispose();
+	       dt.closing.dispose();
+       });
+       connectorTypes.forEach(dt => dt.dispose());
 }
 
 module.exports = {
