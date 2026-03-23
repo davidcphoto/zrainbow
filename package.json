@@ -2,12 +2,30 @@
   "name": "zrainbow",
   "displayName": "zRainbow",
   "description": "Color pairing of if, perform, evaluate conditions for COBOL programs",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "engines": {
     "vscode": "^1.60.0"
   },
   "categories": [
     "Other"
+  ],
+  "keywords": [
+    "cobol",
+    "rainbow",
+    "syntax highlighting",
+    "brackets",
+    "if",
+    "perform",
+    "evaluate",
+    "end-if",
+    "end-perform",
+    "end-evaluate",
+    "else",
+    "when",
+    "color",
+    "nesting",
+    "visual studio code",
+    "extension"
   ],
   "activationEvents": [
     "onLanguage:cobol",
@@ -28,6 +46,35 @@
           "type": "boolean",
           "default": true,
           "description": "Enable/disable rainbow coloring for COBOL conditional structures"
+        },
+        "zrainbow.colors": {
+          "type": "array",
+          "default": [
+            { "opening": "#FFD700", "middle": "#FFA500", "closing": "#FFD700" },
+            { "opening": "#00CED1", "middle": "#1E90FF", "closing": "#00CED1" },
+            { "opening": "#FF69B4", "middle": "#FF1493", "closing": "#FF69B4" },
+            { "opening": "#32CD32", "middle": "#228B22", "closing": "#32CD32" },
+            { "opening": "#9370DB", "middle": "#8B008B", "closing": "#9370DB" },
+            { "opening": "#FF6347", "middle": "#DC143C", "closing": "#FF6347" }
+          ],
+          "description": "Colors for different nesting levels. Each level has opening, middle (ELSE/WHEN), and closing colors.",
+          "items": {
+            "type": "object",
+            "properties": {
+              "opening": {
+                "type": "string",
+                "description": "Color for opening keywords (IF, PERFORM, EVALUATE)"
+              },
+              "middle": {
+                "type": "string",
+                "description": "Color for middle keywords (ELSE, WHEN)"
+              },
+              "closing": {
+                "type": "string",
+                "description": "Color for closing keywords (END-IF, END-PERFORM, END-EVALUATE)"
+              }
+            }
+          }
         }
       }
     }

@@ -5,8 +5,8 @@ const vscode = require('vscode');
 // Decoration types for different nesting levels
 let decorationTypes = [];
 
-// Colors for different nesting levels (rainbow effect)
-const colors = [
+// Default colors for different nesting levels (rainbow effect)
+const defaultColors = [
 	{ opening: '#FFD700', middle: '#FFA500', closing: '#FFD700' }, // Gold/Orange
 	{ opening: '#00CED1', middle: '#1E90FF', closing: '#00CED1' }, // Cyan/Blue
 	{ opening: '#FF69B4', middle: '#FF1493', closing: '#FF69B4' }, // Pink/Deep Pink
@@ -14,6 +14,20 @@ const colors = [
 	{ opening: '#9370DB', middle: '#8B008B', closing: '#9370DB' }, // Purple/Dark Magenta
 	{ opening: '#FF6347', middle: '#DC143C', closing: '#FF6347' }, // Tomato/Crimson
 ];
+
+/**
+ * Get colors from configuration or use defaults
+ */
+function getColors() {
+	const config = vscode.workspace.getConfiguration('zrainbow');
+	const userColors = config.get('colors', []);
+
+	// Use user colors if available and valid, otherwise use defaults
+	if (userColors && Array.isArray(userColors) && userColors.length > 0) {
+		return userColors;
+	}
+	return defaultColors;
+}
 
 /**
  * @param {vscode.ExtensionContext} context
@@ -60,6 +74,37 @@ function activate(context) {
 		})
 	);
 
+	// Update decorations when configuration changes
+	context.subscriptions.push(
+		vscode.workspace.onDidChangeConfiguration(event => {
+			if (event.affectsConfiguration('zrainbow.colors')) {
+				// Dispose old decoration types
+				decorationTypes.forEach(dt => {
+					dt.opening.dispose();
+					dt.middle.dispose();
+					dt.closing.dispose();
+				});
+
+				// Reinitialize with new colors
+				initializeDecorationTypes();
+
+				// Refresh all visible editors
+				vscode.window.visibleTextEditors.forEach(editor => {
+					if (isCobolFile(editor.document)) {
+						updateDecorations(editor);
+					}
+				});
+			} else if (event.affectsConfiguration('zrainbow.enabled')) {
+				// Refresh all visible editors
+				vscode.window.visibleTextEditors.forEach(editor => {
+					if (isCobolFile(editor.document)) {
+						updateDecorations(editor);
+					}
+				});
+			}
+		})
+	);
+
 	// Update decorations for currently active editor
 	if (vscode.window.activeTextEditor && isCobolFile(vscode.window.activeTextEditor.document)) {
 		updateDecorations(vscode.window.activeTextEditor);
@@ -70,6 +115,7 @@ function activate(context) {
  * Initialize decoration types for each nesting level
  */
 function initializeDecorationTypes() {
+	const colors = getColors();
 	decorationTypes = colors.map(color => ({
 		opening: vscode.window.createTextEditorDecorationType({
 			color: color.opening,
@@ -97,6 +143,26 @@ function isCobolFile(document) {
 	       extension === 'cbl' ||
 	       extension === 'cob' ||
 	       extension === 'cobol';
+}
+
+/**
+ * Check if a position in a line is inside a string literal
+ */
+function isInsideString(line, position) {
+	let inSingleQuote = false;
+	let inDoubleQuote = false;
+
+	for (let i = 0; i < position && i < line.length; i++) {
+		const char = line[i];
+
+		if (char === "'" && !inDoubleQuote) {
+			inSingleQuote = !inSingleQuote;
+		} else if (char === '"' && !inSingleQuote) {
+			inDoubleQuote = !inDoubleQuote;
+		}
+	}
+
+	return inSingleQuote || inDoubleQuote;
 }
 
 /**
@@ -181,6 +247,12 @@ function parseCobolStructures(document) {
 
 			if (!word) {
 				pos = result.endPos + 1;
+				continue;
+			}
+
+			// Skip if the keyword is inside a string literal
+			if (isInsideString(codeArea, wordStart)) {
+				pos = result.endPos;
 				continue;
 			}
 
@@ -302,7 +374,7 @@ function updateDecorations(editor) {
 	const decorationsByLevel = {};
 
 	structures.forEach(structure => {
-		const level = structure.level % colors.length;
+		const level = structure.level % decorationTypes.length;
 
 		if (!decorationsByLevel[level]) {
 			decorationsByLevel[level] = {

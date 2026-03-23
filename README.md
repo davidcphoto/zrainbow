@@ -39,6 +39,25 @@ Each nesting level gets a different color, making it easy to identify:
 This extension contributes the following settings:
 
 * `zrainbow.enabled`: Enable/disable rainbow coloring for COBOL conditional structures (default: `true`)
+* `zrainbow.colors`: Customize the colors for each nesting level. Each level has three color properties:
+  * `opening`: Color for opening keywords (IF, PERFORM, EVALUATE)
+  * `middle`: Color for middle keywords (ELSE, WHEN)
+  * `closing`: Color for closing keywords (END-IF, END-PERFORM, END-EVALUATE)
+
+### Example Color Configuration
+
+To customize colors, add to your settings.json:
+
+```json
+"zrainbow.colors": [
+  { "opening": "#FFD700", "middle": "#FFA500", "closing": "#FFD700" },
+  { "opening": "#00CED1", "middle": "#1E90FF", "closing": "#00CED1" },
+  { "opening": "#FF69B4", "middle": "#FF1493", "closing": "#FF69B4" },
+  { "opening": "#32CD32", "middle": "#228B22", "closing": "#32CD32" },
+  { "opening": "#9370DB", "middle": "#8B008B", "closing": "#9370DB" },
+  { "opening": "#FF6347", "middle": "#DC143C", "closing": "#FF6347" }
+]
+```
 
 ## Commands
 
@@ -79,6 +98,8 @@ Initial release of zRainbow:
 - Support for EVALUATE...WHEN...END-EVALUATE structures
 - Rainbow coloring for up to 6 nesting levels
 - Toggle command to enable/disable coloring
+- Customizable colors via settings
+- String literal detection (keywords inside strings are ignored)
 
 ---
 
