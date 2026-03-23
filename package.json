@@ -1,8 +1,9 @@
 {
   "name": "zrainbow",
   "displayName": "zRainbow",
+  "publisher": "DavidCanto",
   "description": "Color pairing of if, perform, evaluate conditions for COBOL programs",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "engines": {
     "vscode": "^1.60.0"
   },
