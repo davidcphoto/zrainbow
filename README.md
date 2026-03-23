@@ -33,7 +33,7 @@ Each nesting level gets a different color, making it easy to identify:
 
 Below is a screenshot of zRainbow highlighting nested COBOL structures:
 
-![zRainbow Example](https://github.com/SEU_USUARIO/SEU_REPOSITORIO/raw/main/Exemplo.png)
+![zRainbow Example](https://github.com/davidcphoto/zrainbow/blob/main/Exemplo.png)
 
 ## Requirements
 
